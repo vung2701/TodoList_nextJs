@@ -136,7 +136,7 @@ export default function Home() {
       </table>
 
       {/* Model add dealine */}
-      <div className="bg-white top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-gray-800 w-1/3 px-10 py-10 rounded">
+      {/* <div className="bg-white top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 border border-gray-800 w-1/3 px-10 py-10 rounded">
         <div className="w-full">
           <label htmlFor="">Time dealine: </label>
           <input 
@@ -148,7 +148,7 @@ export default function Home() {
         </div>
         <Button>Add</Button>
         <Button>Cancel</Button>
-      </div>
+      </div> */}
     </div>
   )
 }
