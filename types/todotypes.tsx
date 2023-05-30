@@ -9,6 +9,7 @@ export enum CompletionStatus {
     text: string
     completed: string
     deadline: string
+    hide: boolean
   }
 
   
