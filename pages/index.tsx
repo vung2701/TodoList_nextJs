@@ -1,22 +1,28 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import TodoForm from "@/components/TodoForm";
 import Todo from "@/types/todoTypes";
 import TodoList from "@/components/TodoList";
 import { CompletionStatus } from "@/types/todoTypes";
 import DeadlineModal from "@/components/DealineModal";
 import Button from "@/components/Button";
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch } from "react-icons/fa";
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
+
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [editTodo, setEditTodo] = useState<Todo>();
+
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
-  const [searchStatus, setSearchStatus] = useState<string>();
 
+  const [filterTodos, setFilterTodos] = useState<Todo[]>([]);
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [searchTodo, setSearchTodo] = useState<string>("");
+
+  // handel todo action
   const onChangeInput = (stringInput: string) => {
     setInputValue(stringInput);
   };
@@ -27,7 +33,7 @@ export default function Home() {
     const newTodo: Todo = {
       id: Date.now(),
       text: inputValue,
-      completed: searchStatus ? searchStatus : CompletionStatus[0],
+      completed: filterStatus === "ALL" ? "TODO" : filterStatus,
       deadline: "",
       hide: false,
     };
@@ -65,6 +71,31 @@ export default function Home() {
     setIsEdit(false);
   };
 
+  const onChangeStatus = (newTodo: Todo) => {
+    if (filterStatus == "ALL") {
+      setTodos(
+        todos.map((todo) =>
+          todo.id === newTodo.id
+            ? { ...todo, completed: newTodo.completed }
+            : todo
+        )
+      );
+    } else {
+      setTodos(
+        todos.map((todo) =>
+          todo.id === newTodo.id
+            ? {
+                ...todo,
+                completed: newTodo.completed,
+                hide: newTodo.completed === filterStatus ? false : true,
+              }
+            : todo
+        )
+      );
+    }
+  };
+
+  // handle Dealine Time
   const onAddDeadline = (id: number) => {
     const deadlineTodo = todos.find((todo) => todo.id === id);
 
@@ -97,10 +128,16 @@ export default function Home() {
     setIsAddDeadline(false);
   };
 
-  const onSearchStatus = (status: string) => {
+  // Filter Status
+  const onFilterStatus = (status: string) => {
     if (status == "ALL") {
-      todos.forEach((todo) => (todo.hide = false));
-      setTodos([...todos]);
+      setFilterTodos(
+        todos.map((todo) =>
+            todo.hide
+            ? { ...todo, hide: false }
+            : todo
+        )
+      );
     } else {
       setTodos(
         todos.map((todo) =>
@@ -110,7 +147,28 @@ export default function Home() {
         )
       );
     }
-    setSearchStatus(status);
+    setFilterStatus(status);
+  };
+
+  // Search
+  const onSearchTodo = () => {
+    if (filterStatus == "ALL") {
+      setTodos(
+        todos.map((todo) =>
+          todo.text.includes(searchTodo)
+            ? { ...todo, hide: false }
+            : { ...todo, hide: true }
+        )
+      );
+    } else {
+      setTodos(
+        todos.map((todo) =>
+          todo.text.includes(searchTodo) && todo.completed == filterStatus
+            ? { ...todo, hide: false }
+            : { ...todo, hide: true }
+        )
+      );
+    }
   };
 
   return (
@@ -125,15 +183,13 @@ export default function Home() {
         onSaveEditTodo={() => onSaveEditTodo(editTodo)}
       />
 
-      <div className=" w-full flex justify-end">
-        <input type="text" className="mt-3 border border-gray-400 rounded px-2 " />
-        <Button primary={false} className="bg-red-600 text-white mt-3"><FaSearch /></Button>
+      <div className=" mt-6 w-full flex justify-end">
         <select
           name="status"
-          className="block w-1/8 mt-3 rounded-md bg-green-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
-          value={searchStatus}
+          className="block w-1/5 mr-2 rounded-md bg-green-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
+          value={filterStatus}
           onChange={(e) => {
-            onSearchStatus(e.target.value);
+            onFilterStatus(e.target.value);
           }}
         >
           <option value="ALL">ALL</option>
@@ -141,6 +197,20 @@ export default function Home() {
           <option value="PROCESS">PROCESS</option>
           <option value="DONE">DONE</option>
         </select>
+        <input
+          type="text"
+          className="w-1/4 border border-gray-400 rounded px-2 py-2"
+          placeholder="Search"
+          value={searchTodo}
+          onChange={(e) => setSearchTodo(e.target.value)}
+        />
+        <Button
+          primary={false}
+          className="bg-red-600 text-white px-4"
+          onClick={onSearchTodo}
+        >
+          <FaSearch />
+        </Button>
       </div>
 
       <TodoList
@@ -148,6 +218,7 @@ export default function Home() {
         onEditTodo={onEditTodo}
         onDeleteTodo={onDeleteTodo}
         onAddDealine={onAddDeadline}
+        onChangeStatus={onChangeStatus}
       />
 
       {isAddDeadline && (

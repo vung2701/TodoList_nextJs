@@ -17,7 +17,7 @@ const Button = ({
     <button
       onClick={onClick}
       className={
-        "hover:opacity-80 rounded " +
+        "hover:opacity-80 rounded border-0 " +
         (primary ? "mx-2 px-6 py-2 text-white " : "") +
         className
       }
