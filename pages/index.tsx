@@ -1,11 +1,9 @@
-import { useState } from "react";
-import TodoForm from "@/components/TodoForm";
-import Todo from "@/types/todoTypes";
-import TodoList from "@/components/TodoList";
-import { CompletionStatus } from "@/types/todoTypes";
+import { useState, useRef, useMemo } from "react";
+import TodoForm from "@/containers/TodoForm";
+import Todo, { CompletionStatus } from "@/types/todoTypes";
+import TodoList from "@/containers/TodoList";
 import DeadlineModal from "@/components/DealineModal";
-import Button from "@/components/Button";
-import { FaSearch } from "react-icons/fa";
+
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -17,8 +15,6 @@ export default function Home() {
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
-
-  const [filterTodos, setFilterTodos] = useState<Todo[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
 
@@ -33,9 +29,7 @@ export default function Home() {
     const newTodo: Todo = {
       id: Date.now(),
       text: inputValue,
-      completed: filterStatus === "ALL" ? "TODO" : filterStatus,
-      deadline: "",
-      hide: false,
+      completed: CompletionStatus.TODO,
     };
     setTodos([...todos, newTodo]);
     setInputValue("");
@@ -115,7 +109,7 @@ export default function Home() {
       setTodos(
         todos.map((todo) =>
           todo.id === deadlineTodo.id
-            ? { ...todo, deadline: inputDeadline.toString() }
+            ? { ...todo, deadline: new Date(inputDeadline) }
             : todo
         )
       );
@@ -130,46 +124,17 @@ export default function Home() {
 
   // Filter Status
   const onFilterStatus = (status: string) => {
-    if (status == "ALL") {
-      setFilterTodos(
-        todos.map((todo) =>
-            todo.hide
-            ? { ...todo, hide: false }
-            : todo
-        )
-      );
-    } else {
-      setTodos(
-        todos.map((todo) =>
-          todo.completed != status
-            ? { ...todo, hide: true }
-            : { ...todo, hide: false }
-        )
-      );
-    }
     setFilterStatus(status);
   };
 
-  // Search
-  const onSearchTodo = () => {
-    if (filterStatus == "ALL") {
-      setTodos(
-        todos.map((todo) =>
-          todo.text.includes(searchTodo)
-            ? { ...todo, hide: false }
-            : { ...todo, hide: true }
-        )
-      );
-    } else {
-      setTodos(
-        todos.map((todo) =>
-          todo.text.includes(searchTodo) && todo.completed == filterStatus
-            ? { ...todo, hide: false }
-            : { ...todo, hide: true }
-        )
-      );
-    }
-  };
+
+  const result = useMemo(() => {
+    return todos.filter(
+      (todo) =>
+        (filterStatus === "ALL" ? true : todo.completed === filterStatus) &&
+        todo.text.toLowerCase().includes(searchTodo.trim().toLowerCase())
+    );
+  }, [filterStatus, searchTodo, todos]);
 
   return (
     <div className="container mx-auto py-6 flex flex-col">
@@ -204,17 +169,17 @@ export default function Home() {
           value={searchTodo}
           onChange={(e) => setSearchTodo(e.target.value)}
         />
-        <Button
+        {/* <Button
           primary={false}
           className="bg-red-600 text-white px-4"
           onClick={onSearchTodo}
         >
           <FaSearch />
-        </Button>
+        </Button> */}
       </div>
 
       <TodoList
-        todos={todos}
+        todos={result}
         onEditTodo={onEditTodo}
         onDeleteTodo={onDeleteTodo}
         onAddDealine={onAddDeadline}

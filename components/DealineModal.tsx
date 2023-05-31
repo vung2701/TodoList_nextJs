@@ -1,8 +1,9 @@
 import Button from "./Button";
+import {format} from "date-fns"
 
 type Props = {
   inputDeadline: string;
-  onChangeInputDeadline: (str: string) => void;
+  onChangeInputDeadline: (deadline: string) => void;
   onSaveDeadline: () => void;
   onCancelDeadline: () => void;
 };
@@ -23,7 +24,6 @@ const DeadlineModal = ({
           <input
             type="date"
             className="flex-1 border border-gray-400 rounded px-2 py-2 ml-4"
-            placeholder="day/month/year"
             value={inputDeadline}
             onChange={(e) => onChangeInputDeadline(e.target.value)}
           />

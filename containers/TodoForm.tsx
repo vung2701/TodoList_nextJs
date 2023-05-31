@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Button from "./Button";
+import Button from "../components/Button";
 
 type Props = {
   inputValue: string;
@@ -27,7 +27,7 @@ const TodoForm = ({
       />
       {isEditing ? (
         <Button
-          className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1 "
           onClick={onSaveEditTodo}
           primary={false}
         >
@@ -35,10 +35,10 @@ const TodoForm = ({
         </Button>
       ) : (
         <Button
-          className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1"
+          className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1 "
           onClick={onAddTodo}
           primary={false}
-        >
+        > 
           Add Todo
         </Button>
       )}

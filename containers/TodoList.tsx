@@ -21,9 +21,7 @@ const TodoList = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 2;
   const startItem = (currentPage - 1) * pageSize;
-  const newTodos = todos.filter((todo) => todo.hide == false);
-  const showTodos = newTodos.slice(startItem, startItem + pageSize);
-
+  const showTodos = todos.slice(startItem, startItem + pageSize)
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -32,7 +30,8 @@ const TodoList = ({
     if (!showTodos.length) {
       setCurrentPage(1);
     }
-  }, [showTodos.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todos.length]);
   return (
     <>
       <table className="min-h-900 w-full divide-y divide-gray-200 mt-3 border table-auto">
@@ -78,7 +77,7 @@ const TodoList = ({
       </table>
 
       <Pagination
-        quantity={newTodos.length}
+        quantity={todos.length}
         pageSize={pageSize}
         currentPage={currentPage}
         onPageChange={onPageChange}

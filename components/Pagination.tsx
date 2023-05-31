@@ -20,10 +20,12 @@ const Pagination = ({
       <button
         className={
           "px-3 py-2 bg-gray-200 rounded-md mr-2 " +
-          (currentPage == 1 ? "opacity-40" : " hover:bg-gray-300")
+          (currentPage === 1 ? "opacity-40" : " hover:bg-gray-300")
         }
-        disabled={currentPage == 1}
-        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        onClick={() => {
+          onPageChange(currentPage - 1)
+        }}
       >
         <GrPrevious className="inline" />
       </button>
@@ -42,11 +44,14 @@ const Pagination = ({
       <button
         className={
           "px-3 py-2 bg-gray-200 rounded-md mr-2 " +
-          (currentPage == pages[pages.length - 1]
+          (currentPage === pagesCount
             ? "opacity-40"
             : "hover:bg-gray-300")
         }
-        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === pagesCount}
+        onClick={() => {
+          onPageChange(currentPage + 1)
+        }}
       >
         <GrNext className="inline" />
       </button>
