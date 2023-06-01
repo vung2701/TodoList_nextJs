@@ -1,13 +1,14 @@
 import Button from "../components/Button";
-import Todo, { CompletionStatus } from "@/types/todoTypes";
+import Todo, { CompletionStatus } from "@/types/todoType";
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
 
 type Props = {
   todo: Todo;
   onEditTodo: (id: number) => void;
   onDeleteTodo: (id: number) => void;
   onAddDealine: (id: number) => void;
-  onChangeStatus: (todo: Todo) => void;
+  onChangeStatus: (id: number, newStatus: CompletionStatus) => void;
 };
 
 const TodoItem = ({
@@ -22,15 +23,14 @@ const TodoItem = ({
       <td className="px-6 py-4 font-bold">
         {todo.id}
       </td>
-      <td onClick={() => onEditTodo(todo.id)} className="px-6 py-4 whitespace-nowrap">{todo.text}</td>
+      <td onClick={() => onEditTodo(todo.id)} className="px-6 py-4 whitespace-nowrap">{todo.name}</td>
       <td className="px-6 py-4 whitespace-nowrap">
         <select
           name="status"
           className="block w-32 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500"
-          value={todo.completed}
+          value={todo.status}
           onChange={(e) => {
-            todo.completed = CompletionStatus[e.target.value as keyof typeof CompletionStatus]
-            onChangeStatus(todo);
+            onChangeStatus(todo.id, CompletionStatus[e.target.value as keyof typeof CompletionStatus]);
           }}
         >
           <option value={CompletionStatus.TODO}>TODO</option>

@@ -6,8 +6,8 @@ export enum CompletionStatus {
 
 type Todo = {
   id: number;
-  text: string;
-  completed: CompletionStatus;
+  name: string;
+  status: CompletionStatus;
   deadline?: Date;
 };
 

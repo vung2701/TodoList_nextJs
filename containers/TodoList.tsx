@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import TodoItem from "./TodoItem";
-import Todo from "@/types/todoTypes";
+import Todo from "@/types/todoType";
 import Pagination from "@/components/Pagination";
+import { CompletionStatus } from "@/types/todoType";
 
 type Props = {
   todos: Todo[];
   onEditTodo: (id: number) => void;
   onDeleteTodo: (id: number) => void;
   onAddDealine: (id: number) => void;
-  onChangeStatus: (todo: Todo) => void;
+  onChangeStatus: (id: number, newStatus: CompletionStatus) => void;
 };
 
 const TodoList = ({

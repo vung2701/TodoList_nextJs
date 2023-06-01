@@ -1,16 +1,25 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import TodoForm from "@/containers/TodoForm";
-import Todo, { CompletionStatus } from "@/types/todoTypes";
+import Todo, { CompletionStatus } from "@/types/todoType";
 import TodoList from "@/containers/TodoList";
 import DeadlineModal from "@/components/DealineModal";
-
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addTodo,
+  deleteTodo,
+  changeTodo,
+  changeStatusTodo,
+  addDealineTodo,
+} from "@/features/todo/todosSlice";
+import { RootState } from "@/features/store";
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [inputValue, setInputValue] = useState<string>("");
+  const todos = useSelector((state: RootState) => state.todos);
+  const dispatch = useDispatch();
 
+  const [inputValue, setInputValue] = useState<string>("");
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [editTodo, setEditTodo] = useState<Todo>();
+  const [editId, setEditId] = useState<number>();
 
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
@@ -28,65 +37,41 @@ export default function Home() {
 
     const newTodo: Todo = {
       id: Date.now(),
-      text: inputValue,
-      completed: CompletionStatus.TODO,
+      name: inputValue,
+      status: CompletionStatus.TODO,
     };
-    setTodos([...todos, newTodo]);
+    dispatch(addTodo(newTodo));
     setInputValue("");
   };
 
-  const onSaveEditTodo = (editTodo: Todo | undefined) => {
+  const onSaveEditTodo = (id: number | undefined) => {
     if (!inputValue.trim()) return;
 
-    if (editTodo) {
-      setTodos(
-        todos.map((todo) =>
-          todo.id === editTodo.id ? { ...todo, text: inputValue } : todo
-        )
-      );
+    if (id) {
+      dispatch(changeTodo({ editId: id, newName: inputValue }));
       setInputValue("");
       setIsEdit(false);
     }
   };
 
   const onEditTodo = (id: number) => {
-    const newEditTodo = todos.find((todo) => todo.id === id);
+    const newTodo = todos.find((todo) => todo.id === id);
 
-    if (newEditTodo) {
-      setInputValue(newEditTodo.text);
-      setEditTodo(newEditTodo);
+    if (newTodo) {
+      setInputValue(newTodo.name);
+      setEditId(id);
       setIsEdit(true);
     }
   };
 
   const onDeleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    dispatch(deleteTodo(id));
     setInputValue("");
     setIsEdit(false);
   };
 
-  const onChangeStatus = (newTodo: Todo) => {
-    if (filterStatus == "ALL") {
-      setTodos(
-        todos.map((todo) =>
-          todo.id === newTodo.id
-            ? { ...todo, completed: newTodo.completed }
-            : todo
-        )
-      );
-    } else {
-      setTodos(
-        todos.map((todo) =>
-          todo.id === newTodo.id
-            ? {
-                ...todo,
-                completed: newTodo.completed,
-                hide: newTodo.completed === filterStatus ? false : true,
-              }
-            : todo
-        )
-      );
-    }
+  const onChangeStatus = (id: number, newStatus: CompletionStatus) => {
+    dispatch(changeStatusTodo({ id, newStatus }));
   };
 
   // handle Dealine Time
@@ -106,13 +91,13 @@ export default function Home() {
   const onSaveDeadline = () => {
     if (!inputDeadline) return;
     if (deadlineTodo) {
-      setTodos(
-        todos.map((todo) =>
-          todo.id === deadlineTodo.id
-            ? { ...todo, deadline: new Date(inputDeadline) }
-            : todo
-        )
+      dispatch(
+        addDealineTodo({
+          id: deadlineTodo.id,
+          deadline: new Date(inputDeadline),
+        })
       );
+
       setIsAddDeadline(false);
       setInputDeadline("");
     }
@@ -127,12 +112,11 @@ export default function Home() {
     setFilterStatus(status);
   };
 
-
   const result = useMemo(() => {
     return todos.filter(
       (todo) =>
-        (filterStatus === "ALL" ? true : todo.completed === filterStatus) &&
-        todo.text.toLowerCase().includes(searchTodo.trim().toLowerCase())
+        (filterStatus === "ALL" ? true : todo.status === filterStatus) &&
+        todo.name.toLowerCase().includes(searchTodo.trim().toLowerCase())
     );
   }, [filterStatus, searchTodo, todos]);
 
@@ -145,7 +129,7 @@ export default function Home() {
         isEditing={isEdit}
         onChangeInput={onChangeInput}
         onAddTodo={onAddTodo}
-        onSaveEditTodo={() => onSaveEditTodo(editTodo)}
+        onSaveEditTodo={() => onSaveEditTodo(editId)}
       />
 
       <div className=" mt-6 w-full flex justify-end">
