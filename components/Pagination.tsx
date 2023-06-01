@@ -24,7 +24,7 @@ const Pagination = ({
         }
         disabled={currentPage === 1}
         onClick={() => {
-          onPageChange(currentPage - 1)
+          onPageChange(currentPage - 1);
         }}
       >
         <GrPrevious className="inline" />
@@ -44,13 +44,11 @@ const Pagination = ({
       <button
         className={
           "px-3 py-2 bg-gray-200 rounded-md mr-2 " +
-          (currentPage === pagesCount
-            ? "opacity-40"
-            : "hover:bg-gray-300")
+          (currentPage === pagesCount ? "opacity-40" : "hover:bg-gray-300")
         }
         disabled={currentPage === pagesCount}
         onClick={() => {
-          onPageChange(currentPage + 1)
+          onPageChange(currentPage + 1);
         }}
       >
         <GrNext className="inline" />

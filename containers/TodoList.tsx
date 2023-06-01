@@ -2,27 +2,17 @@ import { useState, useEffect } from "react";
 import TodoItem from "./TodoItem";
 import Todo from "@/types/todoType";
 import Pagination from "@/components/Pagination";
-import { CompletionStatus } from "@/types/todoType";
 
 type Props = {
   todos: Todo[];
-  onEditTodo: (id: number) => void;
-  onDeleteTodo: (id: number) => void;
   onAddDealine: (id: number) => void;
-  onChangeStatus: (id: number, newStatus: CompletionStatus) => void;
 };
 
-const TodoList = ({
-  todos,
-  onEditTodo,
-  onDeleteTodo,
-  onAddDealine,
-  onChangeStatus,
-}: Props) => {
+const TodoList = ({ todos, onAddDealine }: Props) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 2;
   const startItem = (currentPage - 1) * pageSize;
-  const showTodos = todos.slice(startItem, startItem + pageSize)
+  const showTodos = todos.slice(startItem, startItem + pageSize);
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -31,7 +21,7 @@ const TodoList = ({
     if (!showTodos.length) {
       setCurrentPage(1);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todos.length]);
   return (
     <>
@@ -64,14 +54,7 @@ const TodoList = ({
             </tr>
           ) : (
             showTodos.map((todo) => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                onEditTodo={onEditTodo}
-                onDeleteTodo={onDeleteTodo}
-                onAddDealine={onAddDealine}
-                onChangeStatus={onChangeStatus}
-              />
+              <TodoItem key={todo.id} todo={todo} onAddDealine={onAddDealine} />
             ))
           )}
         </tbody>

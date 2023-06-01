@@ -4,75 +4,19 @@ import Todo, { CompletionStatus } from "@/types/todoType";
 import TodoList from "@/containers/TodoList";
 import DeadlineModal from "@/components/DealineModal";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  addTodo,
-  deleteTodo,
-  changeTodo,
-  changeStatusTodo,
-  addDealineTodo,
-} from "@/features/todo/todosSlice";
+import { changeTodo } from "@/features/todo/todosSlice";
 import { RootState } from "@/features/store";
+import { GrClose } from "react-icons/gr";
 
 export default function Home() {
   const todos = useSelector((state: RootState) => state.todos);
   const dispatch = useDispatch();
-
-  const [inputValue, setInputValue] = useState<string>("");
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [editId, setEditId] = useState<number>();
 
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
-
-  // handel todo action
-  const onChangeInput = (stringInput: string) => {
-    setInputValue(stringInput);
-  };
-
-  const onAddTodo = () => {
-    if (!inputValue.trim()) return;
-
-    const newTodo: Todo = {
-      id: Date.now(),
-      name: inputValue,
-      status: CompletionStatus.TODO,
-    };
-    dispatch(addTodo(newTodo));
-    setInputValue("");
-  };
-
-  const onSaveEditTodo = (id: number | undefined) => {
-    if (!inputValue.trim()) return;
-
-    if (id) {
-      dispatch(changeTodo({ editId: id, newName: inputValue }));
-      setInputValue("");
-      setIsEdit(false);
-    }
-  };
-
-  const onEditTodo = (id: number) => {
-    const newTodo = todos.find((todo) => todo.id === id);
-
-    if (newTodo) {
-      setInputValue(newTodo.name);
-      setEditId(id);
-      setIsEdit(true);
-    }
-  };
-
-  const onDeleteTodo = (id: number) => {
-    dispatch(deleteTodo(id));
-    setInputValue("");
-    setIsEdit(false);
-  };
-
-  const onChangeStatus = (id: number, newStatus: CompletionStatus) => {
-    dispatch(changeStatusTodo({ id, newStatus }));
-  };
 
   // handle Dealine Time
   const onAddDeadline = (id: number) => {
@@ -92,7 +36,7 @@ export default function Home() {
     if (!inputDeadline) return;
     if (deadlineTodo) {
       dispatch(
-        addDealineTodo({
+        changeTodo({
           id: deadlineTodo.id,
           deadline: new Date(inputDeadline),
         })
@@ -124,15 +68,9 @@ export default function Home() {
     <div className="container mx-auto py-6 flex flex-col">
       <h1 className="text-2xl font-bold mb-4 text-center">TodoList !!!</h1>
 
-      <TodoForm
-        inputValue={inputValue}
-        isEditing={isEdit}
-        onChangeInput={onChangeInput}
-        onAddTodo={onAddTodo}
-        onSaveEditTodo={() => onSaveEditTodo(editId)}
-      />
+      <TodoForm />
 
-      <div className=" mt-6 w-full flex justify-end">
+      <div className="mt-6 w-full flex justify-end relative">
         <select
           name="status"
           className="block w-1/5 mr-2 rounded-md bg-green-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
@@ -153,6 +91,12 @@ export default function Home() {
           value={searchTodo}
           onChange={(e) => setSearchTodo(e.target.value)}
         />
+        {searchTodo && (
+          <GrClose
+            className="absolute top-3 right-3"
+            onClick={() => setSearchTodo("")}
+          />
+        )}
         {/* <Button
           primary={false}
           className="bg-red-600 text-white px-4"
@@ -162,13 +106,7 @@ export default function Home() {
         </Button> */}
       </div>
 
-      <TodoList
-        todos={result}
-        onEditTodo={onEditTodo}
-        onDeleteTodo={onDeleteTodo}
-        onAddDealine={onAddDeadline}
-        onChangeStatus={onChangeStatus}
-      />
+      <TodoList todos={result} onAddDealine={onAddDeadline} />
 
       {isAddDeadline && (
         <>

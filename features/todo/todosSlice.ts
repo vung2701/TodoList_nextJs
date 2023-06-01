@@ -5,43 +5,37 @@ export const todoSlice = createSlice({
   name: "todos",
   initialState: <Todo[]>[],
   reducers: {
-    addTodo: (state: Todo[], action: { payload: Todo }) => {
-      state.push(action.payload);
+    addTodo: (state: Todo[], action: { payload: string }) => {
+      const newTodo: Todo = {
+        id: Date.now(),
+        name: action.payload,
+        status: CompletionStatus.TODO
+      }
+      state.push(newTodo);
     },
     deleteTodo: (state: Todo[], action: { payload: number }) => {
       return state.filter((todo) => todo.id !== action.payload);
     },
     changeTodo: (
       state: Todo[],
-      action: { payload: { editId: number; newName: string } }
+      action: {
+        payload: {
+          id: number;
+          name?: string;
+          status?: CompletionStatus;
+          deadline?: Date;
+        };
+      }
     ) => {
-      const newTodo  = state.find(todo => todo.id === action.payload.editId)
-      if(newTodo) newTodo.name = action.payload.newName
-    },
-    changeStatusTodo: (
-      state: Todo[],
-      action: { payload: { id: number; newStatus: CompletionStatus } }
-    ) => {
-      const newTodo  = state.find(todo => todo.id === action.payload.id)
-      if(newTodo) newTodo.status = action.payload.newStatus
-    },
-    addDealineTodo: (
-      state: Todo[],
-      action: { payload: { id: number; deadline: Date } }
-    ) => {
-      const newTodo  = state.find(todo => todo.id === action.payload.id)
-      if(newTodo) newTodo.deadline = action.payload.deadline
+      const Index = state.findIndex((todo) => todo.id === action.payload.id);
+      if (Index !== -1) {
+        state[Index] = { ...state[Index], ...action.payload };
+      }
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {
-  addTodo,
-  deleteTodo,
-  changeTodo,
-  changeStatusTodo,
-  addDealineTodo,
-} = todoSlice.actions;
+export const { addTodo, deleteTodo, changeTodo } = todoSlice.actions;
 
 export default todoSlice.reducer;
