@@ -1,12 +1,17 @@
 import Button from "../components/Button";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addTodo } from "@/features/todo/todosSlice";
+import { createTodo} from "@/services/todoService";
 
 const TodoForm = () => {
-  const dispatch = useDispatch();
 
   const [nameTodoInput, setNameTodoInput] = useState<string>("");
+
+  async function handleAddTodo(){
+    if(!nameTodoInput) return
+    await createTodo(nameTodoInput)
+    setNameTodoInput("");
+  }
+
   return (
     <div className="flex flex-col justify-center w-full">
       <input
@@ -18,7 +23,7 @@ const TodoForm = () => {
       />
       <Button
         className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-1 "
-        onClick={() => dispatch(addTodo(nameTodoInput))}
+        onClick={handleAddTodo}
         primary={false}
       >
         Add Todo

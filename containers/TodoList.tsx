@@ -5,10 +5,10 @@ import Pagination from "@/components/Pagination";
 
 type Props = {
   todos: Todo[];
-  onAddDealine: (id: number) => void;
+  onAdddeadline: (id: number) => void;
 };
 
-const TodoList = ({ todos, onAddDealine }: Props) => {
+const TodoList = ({ todos, onAdddeadline }: Props) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 2;
   const startItem = (currentPage - 1) * pageSize;
@@ -25,7 +25,7 @@ const TodoList = ({ todos, onAddDealine }: Props) => {
   }, [todos.length]);
   return (
     <>
-      <table className="min-h-900 w-full divide-y divide-gray-200 mt-3 border table-auto">
+      <table className="w-full divide-y divide-gray-200 mt-3 border table-auto">
         <thead>
           <tr>
             <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
@@ -54,7 +54,7 @@ const TodoList = ({ todos, onAddDealine }: Props) => {
             </tr>
           ) : (
             showTodos.map((todo) => (
-              <TodoItem key={todo.id} todo={todo} onAddDealine={onAddDealine} />
+              <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} />
             ))
           )}
         </tbody>

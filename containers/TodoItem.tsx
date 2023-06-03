@@ -1,21 +1,25 @@
 import Button from "../components/Button";
 import Todo, { CompletionStatus } from "@/types/todoType";
 import { format } from "date-fns";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { deleteTodo, changeTodo } from "@/features/todo/todosSlice";
+import { useState, useRef } from "react";
+
+import { updatedTodo, deleteTodo } from "@/services/todoService";
 
 type Props = {
   todo: Todo;
-  onAddDealine: (id: number) => void;
+  onAdddeadline: (id: number) => void;
 };
 
-const TodoItem = ({ todo, onAddDealine }: Props) => {
-  const dispatch = useDispatch();
+const TodoItem = ({ todo, onAdddeadline }: Props) => {
+
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [editName, setEditName] = useState<string>(todo.name);
 
+  async function handleUpdateTodo (){
+      await updatedTodo({ id: todo.id, name: editName });
+      setIsEdit(false);
+  }
   return (
     <tr>
       <td className="px-6 py-4 font-bold">{todo.id}</td>
@@ -23,18 +27,17 @@ const TodoItem = ({ todo, onAddDealine }: Props) => {
         onClick={() => setIsEdit(true)}
         className="px-6 py-4 whitespace-nowrap"
       >
-        {todo.name}
-        {isEdit && (
+        {isEdit ? (
           <input
             type="text"
             className="w-1/2 border border-gray-400 rounded py-1 px-2"
             value={editName}
+            autoFocus
             onChange={(e) => setEditName(e.target.value)}
-            onBlur={() => {
-              dispatch(changeTodo({ id: todo.id, name: editName }));
-              setIsEdit(false);
-            }}
+            onBlur={handleUpdateTodo}
           />
+        ) : (
+          todo.name
         )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -43,15 +46,14 @@ const TodoItem = ({ todo, onAddDealine }: Props) => {
           className="block w-32 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500"
           value={todo.status}
           onChange={(e) => {
-            dispatch(
-              changeTodo({
+              updatedTodo({
                 id: todo.id,
                 status:
                   CompletionStatus[
                     e.target.value as keyof typeof CompletionStatus
                   ],
               })
-            );
+            ;
           }}
         >
           <option value={CompletionStatus.TODO}>TODO</option>
@@ -64,13 +66,13 @@ const TodoItem = ({ todo, onAddDealine }: Props) => {
       </td>
       <td className="px-6 py-4 whitespace-nowrap flex">
         <Button
-          onClick={() => dispatch(deleteTodo(todo.id))}
+          onClick={() => deleteTodo(todo.id)}
           className="bg-red-500"
         >
           Delete
         </Button>
-        <Button onClick={() => onAddDealine(todo.id)} className="bg-green-500">
-          Add Dealine
+        <Button onClick={() => onAdddeadline(todo.id)} className="bg-green-500">
+          Add deadline
         </Button>
       </td>
     </tr>

@@ -1,24 +1,29 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import TodoForm from "@/containers/TodoForm";
 import Todo, { CompletionStatus } from "@/types/todoType";
 import TodoList from "@/containers/TodoList";
-import DeadlineModal from "@/components/DealineModal";
-import { useSelector, useDispatch } from "react-redux";
-import { changeTodo } from "@/features/todo/todosSlice";
-import { RootState } from "@/features/store";
+import DeadlineModal from "@/components/DeadlineModal";
 import { GrClose } from "react-icons/gr";
 
-export default function Home() {
-  const todos = useSelector((state: RootState) => state.todos);
-  const dispatch = useDispatch();
+import { fetchTodos, updatedTodo } from "@/services/todoService";
 
+export default function Home() {
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
 
-  // handle Dealine Time
+  useEffect(() => {
+    const getTodos = async () => {
+      const todosData = await fetchTodos();
+      setTodos(todosData);
+    };
+    getTodos();
+  });
+
+  // handle deadline Time
   const onAddDeadline = (id: number) => {
     const deadlineTodo = todos.find((todo) => todo.id === id);
 
@@ -35,12 +40,10 @@ export default function Home() {
   const onSaveDeadline = () => {
     if (!inputDeadline) return;
     if (deadlineTodo) {
-      dispatch(
-        changeTodo({
-          id: deadlineTodo.id,
-          deadline: new Date(inputDeadline),
-        })
-      );
+      updatedTodo({
+        id: deadlineTodo.id,
+        deadline: new Date(inputDeadline),
+      });
 
       setIsAddDeadline(false);
       setInputDeadline("");
@@ -97,16 +100,9 @@ export default function Home() {
             onClick={() => setSearchTodo("")}
           />
         )}
-        {/* <Button
-          primary={false}
-          className="bg-red-600 text-white px-4"
-          onClick={onSearchTodo}
-        >
-          <FaSearch />
-        </Button> */}
       </div>
 
-      <TodoList todos={result} onAddDealine={onAddDeadline} />
+      <TodoList todos={result} onAdddeadline={onAddDeadline} />
 
       {isAddDeadline && (
         <>
