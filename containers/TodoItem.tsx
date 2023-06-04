@@ -8,9 +8,10 @@ import { updatedTodo, deleteTodo } from "@/services/todoService";
 type Props = {
   todo: Todo;
   onAdddeadline: (id: number) => void;
+  reloadData: () => void;
 };
 
-const TodoItem = ({ todo, onAdddeadline }: Props) => {
+const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
 
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -71,7 +72,10 @@ const TodoItem = ({ todo, onAdddeadline }: Props) => {
         >
           Delete
         </Button>
-        <Button onClick={() => onAdddeadline(todo.id)} className="bg-green-500">
+        <Button onClick={() =>{
+           onAdddeadline(todo.id)
+           reloadData()
+        }} className="bg-green-500">
           Add deadline
         </Button>
       </td>

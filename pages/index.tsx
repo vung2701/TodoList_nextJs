@@ -7,8 +7,9 @@ import { GrClose } from "react-icons/gr";
 
 import { fetchTodos, updatedTodo } from "@/services/todoService";
 
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+export default function Home({todosData} : {todosData: Todo[]}) {
+  const [todos, setTodos] = useState<Todo[]>(todosData)
+  const [isLoadData, setIsLoadData] = useState<boolean>(false);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
@@ -17,11 +18,15 @@ export default function Home() {
 
   useEffect(() => {
     const getTodos = async () => {
-      const todosData = await fetchTodos();
-      setTodos(todosData);
+      const newTodos = await fetchTodos();
+      setTodos(newTodos)
     };
-    getTodos();
-  });
+    getTodos()
+  }, [isLoadData]);
+
+  const reloadData = () => {
+    setIsLoadData(!isLoadData);
+  }
 
   // handle deadline Time
   const onAddDeadline = (id: number) => {
@@ -30,6 +35,7 @@ export default function Home() {
     if (deadlineTodo) {
       setDeadlineTodo(deadlineTodo);
       setIsAddDeadline(true);
+      setInputDeadline("");
     }
   };
 
@@ -71,7 +77,7 @@ export default function Home() {
     <div className="container mx-auto py-6 flex flex-col">
       <h1 className="text-2xl font-bold mb-4 text-center">TodoList !!!</h1>
 
-      <TodoForm />
+      <TodoForm reloadData={reloadData}/>
 
       <div className="mt-6 w-full flex justify-end relative">
         <select
@@ -102,7 +108,7 @@ export default function Home() {
         )}
       </div>
 
-      <TodoList todos={result} onAdddeadline={onAddDeadline} />
+      <TodoList todos={result} onAdddeadline={onAddDeadline} reloadData={reloadData}/>
 
       {isAddDeadline && (
         <>
@@ -117,4 +123,11 @@ export default function Home() {
       )}
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const todosData = await fetchTodos();
+  return {
+    props: { todosData },
+  }
 }

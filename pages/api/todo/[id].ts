@@ -8,13 +8,6 @@ export default async function handlerIdTodo(
 ) {
   const { method } = req;
   switch (method) {
-    case "PUT":
-      let { putId, ...data } = req.query;
-      const updatedTodo = await prisma.todo.update({
-        where: { id: Number(putId) },
-        data,
-      });
-      return res.json(updatedTodo);
     case "DELETE":
         const {id} = req.query;
       const deletedTodo = await prisma.todo.delete({

@@ -2,7 +2,10 @@ import Button from "../components/Button";
 import { useState } from "react";
 import { createTodo} from "@/services/todoService";
 
-const TodoForm = () => {
+type Props = {
+  reloadData: () => void
+}
+const TodoForm = ({reloadData} : Props) => {
 
   const [nameTodoInput, setNameTodoInput] = useState<string>("");
 
@@ -10,6 +13,7 @@ const TodoForm = () => {
     if(!nameTodoInput) return
     await createTodo(nameTodoInput)
     setNameTodoInput("");
+    reloadData();
   }
 
   return (

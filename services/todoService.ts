@@ -10,7 +10,7 @@ export async function fetchTodos(): Promise<Todo[]> {
   return data;
 }
 
-export async function createTodo(name: string) {
+export async function createTodo(name: string): Promise<void>{
   const { data } = await axios.post("/todo", { name });
 }
 
@@ -24,13 +24,13 @@ export async function updatedTodo({
   name?: string;
   status?: Status;
   deadline?: Date;
-}) {
+}): Promise<void> {
   const { data } = await axios.put("/todo", { id, name, status, deadline });
 }
 
 export async function deleteTodo(id: number): Promise<void> {
   try {
-    const response = await axios.delete(`/api/todolist/${id}`)
+    const response = await axios.delete(`todo/${id}`)
     return response.data
   } catch (error) {
     console.error(error)

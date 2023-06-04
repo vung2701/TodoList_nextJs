@@ -6,9 +6,10 @@ import Pagination from "@/components/Pagination";
 type Props = {
   todos: Todo[];
   onAdddeadline: (id: number) => void;
+  reloadData: () => void;
 };
 
-const TodoList = ({ todos, onAdddeadline }: Props) => {
+const TodoList = ({ todos, onAdddeadline, reloadData }: Props) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 2;
   const startItem = (currentPage - 1) * pageSize;
@@ -28,19 +29,19 @@ const TodoList = ({ todos, onAdddeadline }: Props) => {
       <table className="w-full divide-y divide-gray-200 mt-3 border table-auto">
         <thead>
           <tr>
-            <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
+            <th className="w-1/7 px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
               ID
             </th>
-            <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
+            <th className="w-1/3 px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
               Work
             </th>
-            <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
+            <th className="w-1/6 px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
+            <th className="w-1/4 px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
               Deadline
             </th>
-            <th className="px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
+            <th className="w-1/3 px-6 py-3 text-left text-gray-800 uppercase tracking-wider">
               Action
             </th>
           </tr>
@@ -54,7 +55,7 @@ const TodoList = ({ todos, onAdddeadline }: Props) => {
             </tr>
           ) : (
             showTodos.map((todo) => (
-              <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} />
+              <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} reloadData={reloadData}/>
             ))
           )}
         </tbody>
