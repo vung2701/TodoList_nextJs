@@ -5,27 +5,41 @@ import TodoList from "@/containers/TodoList";
 import DeadlineModal from "@/components/DeadlineModal";
 import { GrClose } from "react-icons/gr";
 
-import { fetchTodos, updatedTodo } from "@/services/todoService";
+import { fetchTodos } from "@/services/todoService";
+import { storeAddItem, storeDelItem, storeUpdateItem} from "@/services/loadAPIService";
 
 export default function Home({todosData} : {todosData: Todo[]}) {
   const [todos, setTodos] = useState<Todo[]>(todosData)
-  const [isLoadData, setIsLoadData] = useState<boolean>(false);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
 
-  useEffect(() => {
-    const getTodos = async () => {
-      const newTodos = await fetchTodos();
-      setTodos(newTodos)
-    };
-    getTodos()
-  }, [isLoadData]);
+  let storedAddArr: string[] = [];
+  let storedDelArr: number[] = [];
+  let storedUpdateArr: Todo[] = [];
 
-  const reloadData = () => {
-    setIsLoadData(!isLoadData);
+
+  const getTodos = async () => {
+    const newTodos = await fetchTodos();
+    setTodos(newTodos)
+  };
+
+  useEffect(() => {
+    getTodos()
+  }, [storedUpdateArr, storedAddArr, storedDelArr]);
+
+  const onAddTodo = (name: string) => {
+    storeAddItem(storedAddArr, name)
+  }
+
+  const onChangeTodo = ({id , ...data}: Todo) => {
+    storeUpdateItem(storedUpdateArr,{id, ...data})
+  }
+
+  const onDeleteTodo = (id: number) => {
+    storeDelItem(storedDelArr, id)
   }
 
   // handle deadline Time
@@ -43,13 +57,13 @@ export default function Home({todosData} : {todosData: Todo[]}) {
     setInputDeadline(deadline);
   };
 
-  const onSaveDeadline = () => {
+  const onSaveDeadline = async() => {
     if (!inputDeadline) return;
     if (deadlineTodo) {
-      updatedTodo({
+      storeUpdateItem(storedUpdateArr,{
         id: deadlineTodo.id,
         deadline: new Date(inputDeadline),
-      });
+      })
 
       setIsAddDeadline(false);
       setInputDeadline("");
@@ -69,7 +83,7 @@ export default function Home({todosData} : {todosData: Todo[]}) {
     return todos.filter(
       (todo) =>
         (filterStatus === "ALL" ? true : todo.status === filterStatus) &&
-        todo.name.toLowerCase().includes(searchTodo.trim().toLowerCase())
+        todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
     );
   }, [filterStatus, searchTodo, todos]);
 
@@ -77,7 +91,7 @@ export default function Home({todosData} : {todosData: Todo[]}) {
     <div className="container mx-auto py-6 flex flex-col">
       <h1 className="text-2xl font-bold mb-4 text-center">TodoList !!!</h1>
 
-      <TodoForm reloadData={reloadData}/>
+      <TodoForm onAddTodo={onAddTodo}/>
 
       <div className="mt-6 w-full flex justify-end relative">
         <select
@@ -108,7 +122,7 @@ export default function Home({todosData} : {todosData: Todo[]}) {
         )}
       </div>
 
-      <TodoList todos={result} onAdddeadline={onAddDeadline} reloadData={reloadData}/>
+      <TodoList todos={result} onAdddeadline={onAddDeadline} onChangeTodo={onChangeTodo} onDeleteTodo ={onDeleteTodo}/>
 
       {isAddDeadline && (
         <>

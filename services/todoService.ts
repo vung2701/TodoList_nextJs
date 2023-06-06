@@ -10,29 +10,28 @@ export async function fetchTodos(): Promise<Todo[]> {
   return data;
 }
 
-export async function createTodo(name: string): Promise<void>{
+export async function createTodo(name: string): Promise<void> {
   const { data } = await axios.post("/todo", { name });
 }
 
-export async function updatedTodo({
+export async function updateTodo({
   id,
   name,
   status,
   deadline,
-}: {
-  id: number;
-  name?: string;
-  status?: Status;
-  deadline?: Date;
-}): Promise<void> {
-  const { data } = await axios.put("/todo", { id, name, status, deadline });
+}: Todo): Promise<void> {
+  const { data } = await axios.put(`todo/${id}`, {
+    id,
+    name,
+    status,
+    deadline,
+  });
 }
 
 export async function deleteTodo(id: number): Promise<void> {
   try {
-    const response = await axios.delete(`todo/${id}`)
-    return response.data
+    const { data } = await axios.delete(`todo/${id}`);
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 }

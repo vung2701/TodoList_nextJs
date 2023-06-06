@@ -19,13 +19,6 @@ export default async function handler(
         },
       });
       return res.json(todo);
-    case "PUT":
-      const { id, ...data } = req.body;
-      const updatedTodo = await prisma.todo.update({
-        where: { id: Number(id) },
-        data,
-      });
-      return res.json(updatedTodo);
     default:
       return res.status(405).end(`Method ${method} Not Allowed`);
   }

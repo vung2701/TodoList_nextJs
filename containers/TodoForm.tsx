@@ -1,21 +1,20 @@
 import Button from "../components/Button";
 import { useState } from "react";
-import { createTodo} from "@/services/todoService";
+import { storeAddItem } from "@/services/loadAPIService";
 
 type Props = {
-  reloadData: () => void
+  onAddTodo: (name: string) => void,
+  
 }
-const TodoForm = ({reloadData} : Props) => {
+const TodoForm = ({onAddTodo}: Props) => {
 
   const [nameTodoInput, setNameTodoInput] = useState<string>("");
 
-  async function handleAddTodo(){
+  const handleAddTodo = () =>{
     if(!nameTodoInput) return
-    await createTodo(nameTodoInput)
+    onAddTodo(nameTodoInput);
     setNameTodoInput("");
-    reloadData();
   }
-
   return (
     <div className="flex flex-col justify-center w-full">
       <input

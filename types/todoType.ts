@@ -4,10 +4,10 @@ export enum CompletionStatus {
   DONE = "DONE",
 }
 
-interface Todo{
+type Todo = {
   id: number;
-  name: string;
-  status: CompletionStatus;
+  name?: string;
+  status?: CompletionStatus;
   deadline?: Date;
 
 };

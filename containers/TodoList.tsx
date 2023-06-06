@@ -6,10 +6,11 @@ import Pagination from "@/components/Pagination";
 type Props = {
   todos: Todo[];
   onAdddeadline: (id: number) => void;
-  reloadData: () => void;
+  onChangeTodo: (editTodo: Todo) => void;
+  onDeleteTodo: (id: number) => void;
 };
 
-const TodoList = ({ todos, onAdddeadline, reloadData }: Props) => {
+const TodoList = ({ todos, onAdddeadline, onChangeTodo, onDeleteTodo }: Props) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 2;
   const startItem = (currentPage - 1) * pageSize;
@@ -55,7 +56,7 @@ const TodoList = ({ todos, onAdddeadline, reloadData }: Props) => {
             </tr>
           ) : (
             showTodos.map((todo) => (
-              <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} reloadData={reloadData}/>
+              <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} onChangeTodo={onChangeTodo} onDeleteTodo={onDeleteTodo} />
             ))
           )}
         </tbody>
