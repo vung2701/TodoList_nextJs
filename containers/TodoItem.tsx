@@ -12,15 +12,20 @@ type Props = {
 };
 
 const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
-
-
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [editName, setEditName] = useState<string>(todo.name);
+  const [editName, setEditName] = useState<string>(todo.name ? todo.name :"");
 
-  async function handleUpdateTodo (){
-      await updatedTodo({ id: todo.id, name: editName });
-      setIsEdit(false);
+  async function handleUpdateTodo() {
+    await updatedTodo({ id: todo.id, name: editName });
+    setIsEdit(false);
+    reloadData();
   }
+
+  const handleDeleteTodo = async (id: number) => {
+    await deleteTodo(id);
+        reloadData();
+  }
+
   return (
     <tr>
       <td className="px-6 py-4 font-bold">{todo.id}</td>
@@ -47,14 +52,16 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
           className="block w-32 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500"
           value={todo.status}
           onChange={(e) => {
-              updatedTodo({
-                id: todo.id,
-                status:
-                  CompletionStatus[
-                    e.target.value as keyof typeof CompletionStatus
-                  ],
-              })
-            ;
+            updatedTodo({
+              id: todo.id,
+              status:
+                CompletionStatus[
+                  e.target.value as keyof typeof CompletionStatus
+                ],
+            });
+            reloadData();
+    console.log("1")
+
           }}
         >
           <option value={CompletionStatus.TODO}>TODO</option>
@@ -66,16 +73,16 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
         {todo.deadline && format(new Date(todo.deadline), "MM/dd/yyyy")}
       </td>
       <td className="px-6 py-4 whitespace-nowrap flex">
-        <Button
-          onClick={() => deleteTodo(todo.id)}
-          className="bg-red-500"
-        >
+        <Button onClick={() => handleDeleteTodo(todo.id)} className="bg-red-500">
           Delete
         </Button>
-        <Button onClick={() =>{
-           onAdddeadline(todo.id)
-           reloadData()
-        }} className="bg-green-500">
+        <Button
+          onClick={() => {
+            onAdddeadline(todo.id);
+            reloadData();
+          }}
+          className="bg-green-500"
+        >
           Add deadline
         </Button>
       </td>

@@ -10,20 +10,8 @@ type Props = {
 };
 
 const TodoList = ({ todos, onAdddeadline, reloadData }: Props) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 2;
-  const startItem = (currentPage - 1) * pageSize;
-  const showTodos = todos.slice(startItem, startItem + pageSize);
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  
 
-  useEffect(() => {
-    if (!showTodos.length) {
-      setCurrentPage(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todos.length]);
   return (
     <>
       <table className="w-full divide-y divide-gray-200 mt-3 border table-auto">
@@ -47,26 +35,19 @@ const TodoList = ({ todos, onAdddeadline, reloadData }: Props) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {!showTodos.length ? (
+          {!todos.length ? (
             <tr>
               <td className="text-center" colSpan={5}>
                 List is empty.
               </td>
             </tr>
           ) : (
-            showTodos.map((todo) => (
+            todos.map((todo) => (
               <TodoItem key={todo.id} todo={todo} onAdddeadline={onAdddeadline} reloadData={reloadData}/>
             ))
           )}
         </tbody>
       </table>
-
-      <Pagination
-        quantity={todos.length}
-        pageSize={pageSize}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-      />
     </>
   );
 };
