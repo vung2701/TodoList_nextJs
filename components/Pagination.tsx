@@ -13,10 +13,11 @@ const Pagination = ({
   onPageChange,
 }: Props) => {
   const pagesCount = Math.ceil(quantity / pageSize);
+  // console.log(quantity)
 
   const pages = Array.from({ length: pagesCount }, (_, i) => i + 1);
   return pagesCount > 1 ? (
-    <div className="mt-4 flex justify-center items-center absolute bottom-1/4 left-1/2 -translate-x-1/2">
+    <div className="mt-4 flex justify-center items-center absolute bottom-2 left-1/2 -translate-x-1/2">
       <button
         className={
           "px-3 py-2 bg-gray-200 rounded-md mr-2 " +
@@ -34,7 +35,7 @@ const Pagination = ({
           key={page}
           className={
             "px-3 py-2 hover:bg-gray-300 rounded-md mr-2 " +
-            (page == currentPage ? "bg-blue-400 text-white" : "bg-gray-200")
+            (page == currentPage ? "bg-blue-500 text-white" : "bg-gray-200")
           }
           onClick={() => onPageChange(page)}
         >

@@ -3,29 +3,28 @@ import Todo, { CompletionStatus } from "@/types/todoType";
 import { format } from "date-fns";
 import { useState, useRef } from "react";
 
+import { updatedTodo, deleteTodo } from "@/services/todoService";
+
 type Props = {
   todo: Todo;
   onAdddeadline: (id: number) => void;
-  onChangeTodo: (editTodo: Todo) => void;
-  onDeleteTodo: (id: number) => void;
+  reloadData: () => void;
 };
 
-const TodoItem = ({ todo, onAdddeadline, onChangeTodo ,onDeleteTodo }: Props) => {
+const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [editName, setEditName] = useState<string>(todo.name?todo.name: "");
+  const [editName, setEditName] = useState<string>(todo.name ? todo.name :"");
 
-  const handleChangeName = () => {
-    onChangeTodo({id: todo.id, name: editName});
+  async function handleUpdateTodo() {
+    await updatedTodo({ id: todo.id, name: editName });
     setIsEdit(false);
+    reloadData();
   }
 
-
-  const handleChangeStatus = (e: any) => {
-    onChangeTodo({
-      id: todo.id,
-      status: CompletionStatus[e.target.value as keyof typeof CompletionStatus],
-    });
-  };
+  const handleDeleteTodo = async (id: number) => {
+    await deleteTodo(id);
+        reloadData();
+  }
 
   return (
     <tr>
@@ -41,7 +40,7 @@ const TodoItem = ({ todo, onAdddeadline, onChangeTodo ,onDeleteTodo }: Props) =>
             value={editName}
             autoFocus
             onChange={(e) => setEditName(e.target.value)}
-            onBlur={handleChangeName}
+            onBlur={handleUpdateTodo}
           />
         ) : (
           todo.name
@@ -52,7 +51,18 @@ const TodoItem = ({ todo, onAdddeadline, onChangeTodo ,onDeleteTodo }: Props) =>
           name="status"
           className="block w-32 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500"
           value={todo.status}
-          onChange={(e) => handleChangeStatus(e)}
+          onChange={(e) => {
+            updatedTodo({
+              id: todo.id,
+              status:
+                CompletionStatus[
+                  e.target.value as keyof typeof CompletionStatus
+                ],
+            });
+            reloadData();
+    console.log("1")
+
+          }}
         >
           <option value={CompletionStatus.TODO}>TODO</option>
           <option value={CompletionStatus.PROCESS}>PROCESS</option>
@@ -63,15 +73,13 @@ const TodoItem = ({ todo, onAdddeadline, onChangeTodo ,onDeleteTodo }: Props) =>
         {todo.deadline && format(new Date(todo.deadline), "MM/dd/yyyy")}
       </td>
       <td className="px-6 py-4 whitespace-nowrap flex">
-        <Button
-          onClick={() => onDeleteTodo(todo.id)}
-          className="bg-red-500"
-        >
+        <Button onClick={() => handleDeleteTodo(todo.id)} className="bg-red-500">
           Delete
         </Button>
         <Button
           onClick={() => {
             onAdddeadline(todo.id);
+            reloadData();
           }}
           className="bg-green-500"
         >
@@ -80,5 +88,6 @@ const TodoItem = ({ todo, onAdddeadline, onChangeTodo ,onDeleteTodo }: Props) =>
       </td>
     </tr>
   );
-        };
+};
+
 export default TodoItem;

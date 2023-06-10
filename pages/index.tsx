@@ -1,46 +1,43 @@
 import { useState, useMemo, useEffect } from "react";
 import TodoForm from "@/containers/TodoForm";
-import Todo, { CompletionStatus } from "@/types/todoType";
+import Todo, { CompletionStatus, initData } from "@/types/todoType";
 import TodoList from "@/containers/TodoList";
 import DeadlineModal from "@/components/DeadlineModal";
 import { GrClose } from "react-icons/gr";
 
-import { fetchTodos } from "@/services/todoService";
-import { storeAddItem, storeDelItem, storeUpdateItem} from "@/services/loadAPIService";
+import { fetchTodos, updatedTodo } from "@/services/todoService";
+import Pagination from "@/components/Pagination";
 
-export default function Home({todosData} : {todosData: Todo[]}) {
-  const [todos, setTodos] = useState<Todo[]>(todosData)
+
+export default function Home(data: initData) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
 
-  let storedAddArr: string[] = [];
-  let storedDelArr: number[] = [];
-  let storedUpdateArr: Todo[] = [];
+  const [currentPage, setCurrentPage] = useState<number>(data.pageInfor.currentPage);
+  const pageSize = 2;
 
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const getTodos = async () => {
-    const newTodos = await fetchTodos();
-    setTodos(newTodos)
+    const newData = await fetchTodos({ currentPage, pageSize, status: filterStatus, searchValue: searchTodo });
+    setTodos(newData.todos);
+    if(!newData.todos.length && currentPage !== 1){
+      setCurrentPage(currentPage - 1);
+    }
+    const allData = await fetchTodos({status: filterStatus, searchValue: searchTodo });
+    setAllTodos(allData.todos);
   };
 
   useEffect(() => {
-    getTodos()
-  }, [storedUpdateArr, storedAddArr, storedDelArr]);
-
-  const onAddTodo = (name: string) => {
-    storeAddItem(storedAddArr, name)
-  }
-
-  const onChangeTodo = ({id , ...data}: Todo) => {
-    storeUpdateItem(storedUpdateArr,{id, ...data})
-  }
-
-  const onDeleteTodo = (id: number) => {
-    storeDelItem(storedDelArr, id)
-  }
+    getTodos();
+  }, [currentPage, todos.length, filterStatus, searchTodo]);
 
   // handle deadline Time
   const onAddDeadline = (id: number) => {
@@ -57,14 +54,14 @@ export default function Home({todosData} : {todosData: Todo[]}) {
     setInputDeadline(deadline);
   };
 
-  const onSaveDeadline = async() => {
+  const onSaveDeadline = () => {
     if (!inputDeadline) return;
     if (deadlineTodo) {
-      storeUpdateItem(storedUpdateArr,{
+      updatedTodo({
         id: deadlineTodo.id,
         deadline: new Date(inputDeadline),
-      })
-
+      });
+      getTodos()
       setIsAddDeadline(false);
       setInputDeadline("");
     }
@@ -79,19 +76,20 @@ export default function Home({todosData} : {todosData: Todo[]}) {
     setFilterStatus(status);
   };
 
-  const result = useMemo(() => {
-    return todos.filter(
-      (todo) =>
-        (filterStatus === "ALL" ? true : todo.status === filterStatus) &&
-        todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
-    );
-  }, [filterStatus, searchTodo, todos]);
+  // const result = useMemo(() => {
+  //   return todos.filter(
+  //     (todo) =>
+  //       (filterStatus === "ALL" ? true : todo.status === filterStatus) &&
+  //       todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
+  //   );
+  // }, [filterStatus, searchTodo, todos]);
+
 
   return (
     <div className="container mx-auto py-6 flex flex-col">
       <h1 className="text-2xl font-bold mb-4 text-center">TodoList !!!</h1>
 
-      <TodoForm onAddTodo={onAddTodo}/>
+      <TodoForm reloadData={getTodos} />
 
       <div className="mt-6 w-full flex justify-end relative">
         <select
@@ -122,7 +120,11 @@ export default function Home({todosData} : {todosData: Todo[]}) {
         )}
       </div>
 
-      <TodoList todos={result} onAdddeadline={onAddDeadline} onChangeTodo={onChangeTodo} onDeleteTodo ={onDeleteTodo}/>
+      <TodoList
+        todos={todos}
+        onAdddeadline={onAddDeadline}
+        reloadData={getTodos}
+      />
 
       {isAddDeadline && (
         <>
@@ -135,13 +137,24 @@ export default function Home({todosData} : {todosData: Todo[]}) {
           <div className="overlay"></div>
         </>
       )}
+
+      <Pagination
+        quantity={allTodos.length}
+        pageSize = {pageSize}
+        currentPage={currentPage}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }
 
-export async function getServerSideProps() {
-  const todosData = await fetchTodos();
+export async function getServerSideProps(){
+  // Fetch data from the API endpoint
+  const data = await fetchTodos();
   return {
-    props: { todosData },
-  }
+    props: {
+      todos: data.todos,
+      pageInfor: data.pageInfor,
+    },
+  };
 }
