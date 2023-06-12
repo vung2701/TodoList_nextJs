@@ -8,8 +8,8 @@ import { GrClose } from "react-icons/gr";
 import { fetchTodos, updatedTodo } from "@/services/todoService";
 import Pagination from "@/components/Pagination";
 
-
 export default function Home(data: initData) {
+  
   const [todos, setTodos] = useState<Todo[]>([]);
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [inputDeadline, setInputDeadline] = useState<string>("");
@@ -18,7 +18,9 @@ export default function Home(data: initData) {
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchTodo, setSearchTodo] = useState<string>("");
 
-  const [currentPage, setCurrentPage] = useState<number>(data.pageInfor.currentPage);
+  const [currentPage, setCurrentPage] = useState<number>(
+    data.pageInfor.currentPage
+  );
   const pageSize = 2;
 
   const onPageChange = (page: number) => {
@@ -26,18 +28,26 @@ export default function Home(data: initData) {
   };
 
   const getTodos = async () => {
-    const newData = await fetchTodos({ currentPage, pageSize, status: filterStatus, searchValue: searchTodo });
+    const newData = await fetchTodos({
+      currentPage,
+      pageSize,
+      status: filterStatus,
+      searchValue: searchTodo,
+    });
     setTodos(newData.todos);
-    if(!newData.todos.length && currentPage !== 1){
+    if (!newData.todos.length && currentPage !== 1) {
       setCurrentPage(currentPage - 1);
     }
-    const allData = await fetchTodos({status: filterStatus, searchValue: searchTodo });
+    const allData = await fetchTodos({
+      status: filterStatus,
+      searchValue: searchTodo,
+    });
     setAllTodos(allData.todos);
   };
 
   useEffect(() => {
     getTodos();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, todos.length, filterStatus, searchTodo]);
 
   // handle deadline Time
@@ -62,7 +72,7 @@ export default function Home(data: initData) {
         id: deadlineTodo.id,
         deadline: new Date(inputDeadline),
       });
-      getTodos()
+      getTodos();
       setIsAddDeadline(false);
       setInputDeadline("");
     }
@@ -84,8 +94,6 @@ export default function Home(data: initData) {
   //       todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
   //   );
   // }, [filterStatus, searchTodo, todos]);
-
-
 
   return (
     <div className="container mx-auto py-6 flex flex-col">
@@ -142,7 +150,7 @@ export default function Home(data: initData) {
 
       <Pagination
         quantity={allTodos.length}
-        pageSize = {pageSize}
+        pageSize={pageSize}
         currentPage={currentPage}
         onPageChange={onPageChange}
       />
@@ -150,7 +158,7 @@ export default function Home(data: initData) {
   );
 }
 
-export async function getServerSideProps(){
+export async function getServerSideProps() {
   // Fetch data from the API endpoint
   const data = await fetchTodos();
   return {
@@ -160,3 +168,5 @@ export async function getServerSideProps(){
     },
   };
 }
+
+

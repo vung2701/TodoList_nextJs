@@ -15,7 +15,7 @@ export type initData = {
   }
 }
 
-type Todo ={
+type Todo = {
   id: number;
   name?: string;
   status?: CompletionStatus;
