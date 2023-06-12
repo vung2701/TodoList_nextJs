@@ -1,9 +1,17 @@
-import handler from "@/pages/api/todos";
 import { Status } from "@prisma/client";
 import axios from "axios";
 import { initData } from "@/types/todoType";
 
-axios.defaults.baseURL = "http://localhost:3000/api";
+// import { useRouter } from 'next/router';
+// // eslint-disable-next-line react-hooks/rules-of-hooks
+// const { asPath } = useRouter();
+//     const origin =
+//         typeof window !== 'undefined' && window.location.origin
+//             ? window.location.origin
+//             : '';
+
+//     const URL = `${origin}${asPath}`;
+
 
 export async function fetchTodos({
   currentPage,
@@ -16,7 +24,7 @@ export async function fetchTodos({
   status?: string;
   searchValue?: string;
 } = {}): Promise<initData> {
-  const { data } = await axios.get(`/todos`, {
+  const { data } = await axios.get(`/api/todos`, {
     params: {
       page: currentPage,
       perPage: pageSize,
@@ -28,7 +36,7 @@ export async function fetchTodos({
 }
 
 export async function createTodo(name: string): Promise<void> {
-  const { data } = await axios.post("/todos", { name });
+  const { data } = await axios.post("/api/todos", { name });
 }
 
 export async function updatedTodo({
@@ -42,12 +50,12 @@ export async function updatedTodo({
   status?: Status;
   deadline?: Date;
 }): Promise<void> {
-  const { data } = await axios.put("/todos", { id, name, status, deadline });
+  const { data } = await axios.put("/api/todos", { id, name, status, deadline });
 }
 
 export async function deleteTodo(id: number): Promise<void> {
   try {
-    const response = await axios.delete(`todos/${id}`);
+    const response = await axios.delete(`/api/todos/${id}`);
     return response.data;
   } catch (error) {
     console.error(error);

@@ -60,7 +60,6 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
                 ],
             });
             reloadData();
-    console.log("1")
 
           }}
         >
@@ -70,7 +69,7 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
         </select>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        {todo.deadline && format(new Date(todo.deadline), "MM/dd/yyyy")}
+        {todo.deadline && format(new Date(todo.deadline), "MM/dd/yyyy").toString()}
       </td>
       <td className="px-6 py-4 whitespace-nowrap flex">
         <Button onClick={() => handleDeleteTodo(todo.id)} className="bg-red-500">

@@ -37,6 +37,7 @@ export default function Home(data: initData) {
 
   useEffect(() => {
     getTodos();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, todos.length, filterStatus, searchTodo]);
 
   // handle deadline Time
@@ -83,6 +84,7 @@ export default function Home(data: initData) {
   //       todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
   //   );
   // }, [filterStatus, searchTodo, todos]);
+
 
 
   return (
