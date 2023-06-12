@@ -1,6 +1,6 @@
 import { Status } from "@prisma/client";
 import { initData } from "@/types/todoType";
-import api from "@/untils/api";
+import api from "@/untils/apiConfig";
 
 export async function fetchTodos({
   currentPage,
@@ -13,7 +13,7 @@ export async function fetchTodos({
   status?: string;
   searchValue?: string;
 } = {}): Promise<initData> {
-  const { data } = await api.get(`api/todos`, {
+  const { data } = await api.get(`/api/todos`, {
     params: {
       page: currentPage,
       perPage: pageSize,
