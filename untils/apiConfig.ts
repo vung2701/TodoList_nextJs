@@ -1,9 +1,7 @@
 import axios from 'axios';
-import getConfig from 'next/config';
-const { publicRuntimeConfig } = getConfig();
 
 const api = axios.create({
-  baseURL: publicRuntimeConfig.backendUrl,
+  baseURL: process.env.NODE_ENV === "production" ?  "/": " http://localhost:3000",
 });
 
 export default api;
