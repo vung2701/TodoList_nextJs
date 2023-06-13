@@ -1,4 +1,4 @@
-import { Status } from "@prisma/client";
+import { Level, Status } from "@prisma/client";
 import { initData } from "@/types/todoType";
 import api from "@/untils/apiConfig";
 
@@ -12,20 +12,31 @@ export async function fetchTodos({
   pageSize?: number;
   status?: string;
   searchValue?: string;
-} = {}): Promise<initData> {
-  const { data } = await api.get(`/api/todos`, {
-    params: {
-      page: currentPage,
-      perPage: pageSize,
-      status: status,
-      searchValue: searchValue,
-    },
-  });
-  return data;
+} = {}) {
+  try {
+    const res = await api.get(`/api/todos`, {
+      params: {
+        page: currentPage,
+        perPage: pageSize,
+        status: status,
+        searchValue: searchValue,
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export async function createTodo(name: string): Promise<void> {
-  const { data } = await api.post("/api/todos", { name });
+  try{
+    const res = await api.post(`/api/todos`, {
+      name,
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export async function updatedTodo({
@@ -33,13 +44,29 @@ export async function updatedTodo({
   name,
   status,
   deadline,
+  level,
+  point
 }: {
   id: number;
   name?: string;
   status?: Status;
   deadline?: Date;
+  level?: Level;
+  point?: number;
 }): Promise<void> {
-  const { data } = await api.put("/api/todos", { id, name, status, deadline });
+  try { 
+    const res = await api.put(`/api/todos/${id}`, {
+      id,
+      name,
+      status,
+      deadline,
+      level,
+      point
+    });
+    return res.data;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export async function deleteTodo(id: number): Promise<void> {

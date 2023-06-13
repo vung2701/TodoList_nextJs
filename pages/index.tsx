@@ -16,7 +16,7 @@ export default function Home(data: initData) {
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
   const [deadlineTodo, setDeadlineTodo] = useState<Todo>();
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
-  const [searchTodo, setSearchTodo] = useState<string>("");
+  const [searchName, setSearchName] = useState<string>("");
 
   const [currentPage, setCurrentPage] = useState<number>(
     data.pageInfor.currentPage
@@ -32,7 +32,7 @@ export default function Home(data: initData) {
       currentPage,
       pageSize,
       status: filterStatus,
-      searchValue: searchTodo,
+      searchValue: searchName,
     });
     setTodos(newData.todos);
     if (!newData.todos.length && currentPage !== 1) {
@@ -40,7 +40,7 @@ export default function Home(data: initData) {
     }
     const allData = await fetchTodos({
       status: filterStatus,
-      searchValue: searchTodo,
+      searchValue: searchName,
     });
     setAllTodos(allData.todos);
   };
@@ -48,7 +48,7 @@ export default function Home(data: initData) {
   useEffect(() => {
     getTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, todos.length, filterStatus, searchTodo]);
+  }, [currentPage, todos.length, filterStatus, searchName]);
 
   // handle deadline Time
   const onAddDeadline = (id: number) => {
@@ -65,10 +65,10 @@ export default function Home(data: initData) {
     setInputDeadline(deadline);
   };
 
-  const onSaveDeadline = () => {
+  const onSaveDeadline = async() => {
     if (!inputDeadline) return;
     if (deadlineTodo) {
-      updatedTodo({
+      await updatedTodo({
         id: deadlineTodo.id,
         deadline: new Date(inputDeadline),
       });
@@ -91,9 +91,9 @@ export default function Home(data: initData) {
   //   return todos.filter(
   //     (todo) =>
   //       (filterStatus === "ALL" ? true : todo.status === filterStatus) &&
-  //       todo.name?.toLowerCase().includes(searchTodo.trim().toLowerCase())
+  //       todo.name?.toLowerCase().includes(searchName.trim().toLowerCase())
   //   );
-  // }, [filterStatus, searchTodo, todos]);
+  // }, [filterStatus, searchName, todos]);
 
   return (
     <div className="container mx-auto py-6 flex flex-col">
@@ -119,13 +119,13 @@ export default function Home(data: initData) {
           type="text"
           className="w-1/4 border border-gray-400 rounded px-2 py-2"
           placeholder="Search"
-          value={searchTodo}
-          onChange={(e) => setSearchTodo(e.target.value)}
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
         />
-        {searchTodo && (
+        {searchName && (
           <GrClose
             className="absolute top-3 right-3"
-            onClick={() => setSearchTodo("")}
+            onClick={() => setSearchName("")}
           />
         )}
       </div>

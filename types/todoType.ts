@@ -4,6 +4,23 @@ export enum CompletionStatus {
   DONE = "DONE",
 }
 
+export enum Level {
+  EASY = "EASY",
+  MEDIUM = "MEDIUM",
+  HARD = "HARD",
+}
+
+type Todo = {
+  id: number;
+  name?: string;
+  status?: CompletionStatus;
+  deadline?: Date;
+  level?: Level;
+  point?: number;
+};
+
+export default Todo;
+
 export type initData = {
   totalItems(totalItems: any): unknown;
   todos: Todo[],
@@ -14,14 +31,3 @@ export type initData = {
     pageSize: number,
   }
 }
-
-type Todo = {
-  id: number;
-  name?: string;
-  status?: CompletionStatus;
-  deadline?: Date;
-
-};
-
-export default Todo;
-

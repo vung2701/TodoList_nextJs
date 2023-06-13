@@ -9,10 +9,17 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum Status {
   TODO
   PROCESS
-  DONE
+  DONE 
+}
+
+enum Level {
+  EASY
+  MEDIUM
+  HARD
 }
 
 model Todo {
@@ -22,4 +29,6 @@ model Todo {
   name String @db.VarChar(100)
   status  Status @default(TODO)
   deadline DateTime?
+  level Level @default(EASY)
+  point Int?
 }

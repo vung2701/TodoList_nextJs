@@ -1,9 +1,11 @@
+/* eslint-disable react/no-unescaped-entities */
 import Button from "../components/Button";
 import Todo, { CompletionStatus } from "@/types/todoType";
 import { format } from "date-fns";
 import { useState, useRef } from "react";
 
 import { updatedTodo, deleteTodo } from "@/services/todoService";
+import { Level } from "@prisma/client";
 
 type Props = {
   todo: Todo;
@@ -13,9 +15,11 @@ type Props = {
 
 const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [editName, setEditName] = useState<string>(todo.name ? todo.name :"");
+  const [isEditPoint, setIsEditPoint] = useState<boolean>(false);
+  const [editName, setEditName] = useState<string>(todo.name ? todo.name : "");
+  const [point, setPoint] = useState<number>(todo.point ? todo.point : 5);
 
-  async function handleUpdateTodo() {
+  async function handleChangeName() {
     await updatedTodo({ id: todo.id, name: editName });
     setIsEdit(false);
     reloadData();
@@ -23,7 +27,35 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
 
   const handleDeleteTodo = async (id: number) => {
     await deleteTodo(id);
-        reloadData();
+    reloadData();
+  };
+
+  const handleChangeStatus = async (status: string) => {
+    await updatedTodo({
+      id: todo.id,
+      status: CompletionStatus[status as keyof typeof CompletionStatus],
+    });
+    reloadData();
+  };
+
+  const handleChangeLevel = async (level: string) => {
+    await updatedTodo({
+      id: todo.id,
+      level: Level[level as keyof typeof Level],
+    });
+    reloadData();
+  };
+
+  const handleChangePoint = async (point: string) => {
+    if(!isNaN(Number(point)) && Number(point) >= 0 && Number(point) <= 10){
+      setPoint(Number(point))
+    }
+  }
+
+  const handleSavePoint = async() => {
+    await updatedTodo({ id: todo.id, point: point, });
+    setIsEditPoint(false);
+    reloadData();
   }
 
   return (
@@ -40,7 +72,7 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
             value={editName}
             autoFocus
             onChange={(e) => setEditName(e.target.value)}
-            onBlur={handleUpdateTodo}
+            onBlur={handleChangeName}
           />
         ) : (
           todo.name
@@ -49,19 +81,9 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <select
           name="status"
-          className="block w-32 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500"
+          className="w-30 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500 bg-transparent"
           value={todo.status}
-          onChange={(e) => {
-            updatedTodo({
-              id: todo.id,
-              status:
-                CompletionStatus[
-                  e.target.value as keyof typeof CompletionStatus
-                ],
-            });
-            reloadData();
-
-          }}
+          onChange={(e) => handleChangeStatus(e.target.value)}
         >
           <option value={CompletionStatus.TODO}>TODO</option>
           <option value={CompletionStatus.PROCESS}>PROCESS</option>
@@ -69,20 +91,66 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
         </select>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        {todo.deadline && format(new Date(todo.deadline), "MM/dd/yyyy").toString()}
+        {todo.deadline ? (
+          <>
+            {format(new Date(todo.deadline), "MM/dd/yyyy").toString()}
+            <a
+              className="pl-3 italic underline hover:cursor-pointer hover:text-blue-500"
+              onClick={(e) => {
+                e.preventDefault();
+                onAdddeadline(todo.id);
+              }}
+            >
+              Edit
+            </a>
+          </>
+        ) : (
+          <a
+            className="italic underline hover:cursor-pointer hover:text-blue-500"
+            onClick={(e) => {
+              e.preventDefault();
+              onAdddeadline(todo.id);
+            }}
+          >
+            Add deadline
+          </a>
+        )}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap flex">
-        <Button onClick={() => handleDeleteTodo(todo.id)} className="bg-red-500">
-          Delete
-        </Button>
-        <Button
-          onClick={() => {
-            onAdddeadline(todo.id);
-            reloadData();
-          }}
-          className="bg-green-500"
+      <td className="px-6 py-4 whitespace-nowrap">
+        <select
+          name="level"
+          className="w-30 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-500 bg-transparent"
+          value={todo.level}
+          onChange={(e) => handleChangeLevel(e.target.value)}
         >
-          Add deadline
+          <option value={Level.EASY}>EASY</option>
+          <option value={Level.MEDIUM}>MEDIUM</option>
+          <option value={Level.HARD}>HARD</option>
+        </select>
+      </td>
+      <td
+        onClick={() => setIsEditPoint(true)}
+        className="px-6 py-4 whitespace-nowrap"
+      >
+        {isEditPoint ? (
+          <input
+            type="number"
+            min={0}
+            max={10}
+            className="w-16 border border-gray-400 rounded py-1 px-2"
+            value={point}
+            autoFocus
+            onChange={(e) => handleChangePoint(e.target.value)}
+            onBlur={handleSavePoint}
+          />
+        ) : todo.point}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <Button
+          onClick={() => handleDeleteTodo(todo.id)}
+          className="bg-red-500"
+        >
+          Delete
         </Button>
       </td>
     </tr>
@@ -90,3 +158,7 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
 };
 
 export default TodoItem;
+function async() {
+  throw new Error("Function not implemented.");
+}
+
