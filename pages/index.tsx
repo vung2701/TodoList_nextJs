@@ -14,7 +14,7 @@ import Pagination from "@/components/Pagination";
 export default function Home(data: initData) {
   const router = useRouter();
   const query = router.query;
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(data.todos);
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
@@ -29,28 +29,35 @@ export default function Home(data: initData) {
     query.searchValue?.toString() ? query.searchValue.toString() : ""
   );
 
-  const [currentPage, setCurrentPage] = useState<number>(
-    data.pageInfor.currentPage
-  );
-  const pageSize = 2;
+  const [page, setPage] = useState<number>(data.pageInfor.page);
+  const perPage = data.pageInfor.perPage;
 
   const onPageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page);
+    router.push({
+      pathname: "",
+      query: {
+        ...query,
+        page,
+      },
+    });
   };
 
   const getTodos = async () => {
     const newData = await fetchTodos({
-      currentPage,
-      pageSize,
+      page,
+      perPage,
       status: filterStatus,
       searchValue: searchName,
       level: filterLevel,
     });
     setTodos(newData.todos);
-    if (!newData.todos.length && currentPage !== 1) {
-      setCurrentPage(currentPage - 1);
+    if (!newData.todos.length && page !== 1) {
+      setPage(page - 1);
     }
     const allData = await fetchTodos({
+      page: 1,
+      perPage: data.pageInfor.totalItems,
       status: filterStatus,
       searchValue: searchName,
       level: filterLevel,
@@ -59,20 +66,10 @@ export default function Home(data: initData) {
   };
 
   useEffect(() => {
-    router.push({
-      pathname: "/",
-      query: {
-        ...query,
-        currentPage,
-        perPage: pageSize,
-        status: filterStatus,
-        searchValue: searchName,
-        level: filterLevel,
-      },
-    });
     getTodos();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, todos.length, filterStatus, searchName, filterLevel]);
+  }, [page, todos.length, filterStatus, searchName, filterLevel]);
 
   // handle deadline Time
   const onAddDeadline = (id: number) => {
@@ -105,15 +102,28 @@ export default function Home(data: initData) {
   const onCancelDeadline = () => {
     setIsAddDeadline(false);
   };
-  console.log(filterLevel);
 
   // Filter Status
   const onFilterStatus = (status: string) => {
     setFilterStatus(status);
+    router.push({
+      pathname: "",
+      query: {
+        ...query,
+        status,
+      },
+    });
   };
 
   const onFilterLevel = (level: string) => {
     setFilterLevel(level);
+    router.push({
+      pathname: "",
+      query: {
+        ...query,
+        level,
+      },
+    });
   };
 
   // const result = useMemo(() => {
@@ -164,12 +174,30 @@ export default function Home(data: initData) {
           className="w-1/6 border border-gray-400 rounded px-2 py-2"
           placeholder="Search"
           value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
+          onChange={(e) => {
+            setSearchName(e.target.value)
+            router.push({
+              pathname: "",
+              query: {
+                ...query,
+                searchValue: e.target.value,
+              },
+            });
+          }}
         />
         {searchName && (
           <GrClose
             className="absolute top-3 right-3"
-            onClick={() => setSearchName("")}
+            onClick={() => {
+              setSearchName("")
+              router.push({
+                pathname: "",
+                query: {
+                  ...query,
+                  searchValue: "",
+                },
+              });
+            }}
           />
         )}
       </div>
@@ -194,8 +222,8 @@ export default function Home(data: initData) {
 
       <Pagination
         quantity={allTodos.length}
-        pageSize={pageSize}
-        currentPage={currentPage}
+        perPage={perPage}
+        currentPage={page}
         onPageChange={onPageChange}
       />
     </div>
@@ -206,9 +234,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const query = context.query;
   // Fetch data from the API endpoint
   const data = await fetchTodos(query);
+  console.log(data);
   return {
     props: {
-      todos: data.todos,
+      todos: data.todos || [],
       pageInfor: data.pageInfor,
     },
   };

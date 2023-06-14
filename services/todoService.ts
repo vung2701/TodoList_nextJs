@@ -2,30 +2,28 @@ import { Level, Status } from "@prisma/client";
 import api from "@/untils/apiConfig";
 
 export async function fetchTodos({
-  currentPage,
-  pageSize,
+  page,
+  perPage,
   status,
   searchValue,
   level,
 }: {
-  currentPage?: number;
-  pageSize?: number;
+  page?: number;
+  perPage?: number;
   status?: string;
   searchValue?: string;
   level?: string;
-} = {}) {
+}) {
   try {
-    
     const res = await api.get(`/api/todos`, {
       params: {
-        page: currentPage,
-        perPage: pageSize,
-        status: status,
-        searchValue: searchValue,
-        level: level,
+        page,
+        perPage,
+        status,
+        searchValue,
+        level,
       },
     });
-    
     return res.data;
   } catch (err) {
     console.log(err);

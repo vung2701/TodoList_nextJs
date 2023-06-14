@@ -11,14 +11,14 @@ export default async function handler(
   switch (method) {
     case "GET":
       const totalItems = await prisma.todo.count();
-      const currentPage = parseInt(req.query.page as string)
+      const page = parseInt(req.query.page as string)
         ? parseInt(req.query.page as string)
         : 1;
-      const pageSize = parseInt(req.query.perPage as string)
+      const perPage = parseInt(req.query.perPage as string)
         ? parseInt(req.query.perPage as string)
-        : totalItems;
-      const skip = (currentPage - 1) * pageSize;
-      const totalPages = Math.ceil(totalItems / pageSize);
+        : 2;
+      const skip = (page - 1) * perPage;
+      const totalPages = Math.ceil(totalItems / perPage);
 
       const status = req.query.status ;
       const level = req.query.level ;
@@ -27,7 +27,7 @@ export default async function handler(
       const todos = await prisma.todo.findMany({
         orderBy: { createAt: "asc" },
         skip,
-        take: pageSize,
+        take: perPage,
         where: {
           status:
             status !== "ALL"
@@ -44,10 +44,9 @@ export default async function handler(
       return res.json({
         todos,
         pageInfor: {
-          currentPage,
-          pageSize,
-          totalItems,
-          totalPages,
+          page,
+          perPage,
+          totalItems
         },
       });
     case "POST":
@@ -57,13 +56,6 @@ export default async function handler(
         },
       });
       return res.json(todo);
-    case "PUT":
-      const { id, ...data } = req.body;
-      const updatedTodo = await prisma.todo.update({
-        where: { id: Number(id) },
-        data,
-      });
-      return res.json(updatedTodo);
     default:
       return res.status(405).end(`Method ${method} Not Allowed`);
   }

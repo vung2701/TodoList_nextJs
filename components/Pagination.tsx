@@ -1,18 +1,18 @@
 import { GrNext, GrPrevious } from "react-icons/gr";
 type Props = {
   quantity: number;
-  pageSize: number;
+  perPage: number;
   currentPage: number;
   onPageChange: (page: number) => void;
 };
 
 const Pagination = ({
   quantity,
-  pageSize,
+  perPage,
   currentPage,
   onPageChange,
 }: Props) => {
-  const pagesCount = Math.ceil(quantity / pageSize);
+  const pagesCount = Math.ceil(quantity / perPage);
 
   const pages = Array.from({ length: pagesCount }, (_, i) => i + 1);
   return pagesCount > 1 ? (
