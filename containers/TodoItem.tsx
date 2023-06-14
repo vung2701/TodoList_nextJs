@@ -17,7 +17,7 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isEditPoint, setIsEditPoint] = useState<boolean>(false);
   const [editName, setEditName] = useState<string>(todo.name ? todo.name : "");
-  const [point, setPoint] = useState<number>(todo.point ? todo.point : 5);
+  const [point, setPoint] = useState<number | undefined>(todo.point);
 
   async function handleChangeName() {
     await updatedTodo({ id: todo.id, name: editName });
@@ -47,16 +47,16 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
   };
 
   const handleChangePoint = async (point: string) => {
-    if(!isNaN(Number(point)) && Number(point) >= 0 && Number(point) <= 10){
-      setPoint(Number(point))
+    if (!isNaN(Number(point)) && Number(point) >= 0 && Number(point) <= 10) {
+      setPoint(Number(point));
     }
-  }
+  };
 
-  const handleSavePoint = async() => {
-    await updatedTodo({ id: todo.id, point: point, });
+  const handleSavePoint = async () => {
+    await updatedTodo({ id: todo.id, point: point });
     setIsEditPoint(false);
     reloadData();
-  }
+  };
 
   return (
     <tr>
@@ -105,15 +105,14 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
             </a>
           </>
         ) : (
-          <a
+          <span
             className="italic underline hover:cursor-pointer hover:text-blue-500"
-            onClick={(e) => {
-              e.preventDefault();
+            onClick={() => {
               onAdddeadline(todo.id);
             }}
           >
             Add deadline
-          </a>
+          </span>
         )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -128,10 +127,7 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
           <option value={Level.HARD}>HARD</option>
         </select>
       </td>
-      <td
-        onClick={() => setIsEditPoint(true)}
-        className="px-6 py-4 whitespace-nowrap"
-      >
+      <td className="px-6 py-4 whitespace-nowrap">
         {isEditPoint ? (
           <input
             type="number"
@@ -143,7 +139,16 @@ const TodoItem = ({ todo, onAdddeadline, reloadData }: Props) => {
             onChange={(e) => handleChangePoint(e.target.value)}
             onBlur={handleSavePoint}
           />
-        ) : todo.point}
+        ) : todo.point || todo.point === 0 ? (
+          <span onClick={() => setIsEditPoint(true)}>{todo.point}</span>
+        ) : (
+          <span
+            onClick={() => setIsEditPoint(true)}
+            className="italic underline hover:cursor-pointer hover:text-blue-500"
+          >
+            Add point
+          </span>
+        )}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <Button
@@ -161,4 +166,3 @@ export default TodoItem;
 function async() {
   throw new Error("Function not implemented.");
 }
-

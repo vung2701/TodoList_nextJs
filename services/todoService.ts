@@ -1,5 +1,4 @@
 import { Level, Status } from "@prisma/client";
-import { initData } from "@/types/todoType";
 import api from "@/untils/apiConfig";
 
 export async function fetchTodos({
@@ -7,21 +6,26 @@ export async function fetchTodos({
   pageSize,
   status,
   searchValue,
+  level,
 }: {
   currentPage?: number;
   pageSize?: number;
   status?: string;
   searchValue?: string;
+  level?: string;
 } = {}) {
   try {
+    
     const res = await api.get(`/api/todos`, {
       params: {
         page: currentPage,
         perPage: pageSize,
         status: status,
         searchValue: searchValue,
+        level: level,
       },
     });
+    
     return res.data;
   } catch (err) {
     console.log(err);
@@ -29,7 +33,7 @@ export async function fetchTodos({
 }
 
 export async function createTodo(name: string): Promise<void> {
-  try{
+  try {
     const res = await api.post(`/api/todos`, {
       name,
     });
@@ -45,7 +49,7 @@ export async function updatedTodo({
   status,
   deadline,
   level,
-  point
+  point,
 }: {
   id: number;
   name?: string;
@@ -54,14 +58,14 @@ export async function updatedTodo({
   level?: Level;
   point?: number;
 }): Promise<void> {
-  try { 
+  try {
     const res = await api.put(`/api/todos/${id}`, {
       id,
       name,
       status,
       deadline,
       level,
-      point
+      point,
     });
     return res.data;
   } catch (err) {
