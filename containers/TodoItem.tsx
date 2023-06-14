@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useState, useRef } from "react";
 
 import { updatedTodo, deleteTodo } from "@/services/todoService";
-import { Level } from "@prisma/client";
+import { Level } from "@/types/todoType";
 
 type Props = {
   todo: Todo;
