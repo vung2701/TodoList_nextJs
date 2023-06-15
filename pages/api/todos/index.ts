@@ -16,12 +16,12 @@ export default async function handler(
         : 1;
       const perPage = parseInt(req.query.perPage as string)
         ? parseInt(req.query.perPage as string)
-        : 2;
+        : totalItems;
       const skip = (page - 1) * perPage;
       const totalPages = Math.ceil(totalItems / perPage);
 
-      const status = req.query.status ;
-      const level = req.query.level ;
+      const status = req.query.status;
+      const level = req.query.level;
       const searchValue = req.query.searchValue as string;
 
       const todos = await prisma.todo.findMany({
@@ -32,23 +32,16 @@ export default async function handler(
           status:
             status !== "ALL"
               ? CompletionStatus[status as keyof typeof CompletionStatus]
-              : {not: undefined},
+              : { not: undefined },
           level:
             level !== "ALL"
               ? Level[level as keyof typeof Level]
-              : {not: undefined},
-          name: { contains: searchValue }
+              : { not: undefined },
+          name: { contains: searchValue },
         },
       });
 
-      return res.json({
-        todos,
-        pageInfor: {
-          page,
-          perPage,
-          totalItems
-        },
-      });
+      return res.json(todos);
     case "POST":
       const todo = await prisma.todo.create({
         data: {

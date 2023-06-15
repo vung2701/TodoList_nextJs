@@ -1,4 +1,4 @@
-import Button from "./Button";
+import Button from "../common/Button";
 import {format} from "date-fns"
 
 type Props = {
@@ -15,7 +15,7 @@ const DeadlineModal = ({
   onCancelDeadline,
 }: Props) => {
   return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white border border-gray-800 w-1/3 px-8 py-8 rounded z-10">
+    <div className="w-[100] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  bg-white border border-gray-800 px-8 py-8 rounded z-10">
       <div className="w-full flex flex-col text-xl">
         <div className="my-4 flex-shrink">
           <label className="whitespace-nowrap" htmlFor="">

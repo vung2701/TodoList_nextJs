@@ -1,4 +1,4 @@
-import Button from "../components/Button";
+import Button from "../common/Button";
 import { useState } from "react";
 import { createTodo} from "@/services/todoService";
 

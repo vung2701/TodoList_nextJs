@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-import Button from "../components/Button";
+import Button from "../common/Button";
 import Todo, { CompletionStatus } from "@/types/todoType";
 import { format } from "date-fns";
 import { useState, useRef } from "react";

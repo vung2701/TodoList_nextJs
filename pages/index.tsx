@@ -1,20 +1,22 @@
 import { useState, useMemo, useEffect } from "react";
-import TodoForm from "@/containers/TodoForm";
+import TodoForm from "@/components/home/TodoForm";
 import Todo, { CompletionStatus, Level, initData } from "@/types/todoType";
-import TodoList from "@/containers/TodoList";
-import DeadlineModal from "@/components/DeadlineModal";
+import TodoList from "@/components/home/TodoList";
+import DeadlineModal from "@/components/home/DeadlineModal";
 import { GrClose } from "react-icons/gr";
 import { useRouter } from "next/router";
 
 import { GetServerSidePropsContext } from "next";
 
 import { fetchTodos, updatedTodo } from "@/services/todoService";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/common/Pagination";
+import Header from "@/components/layouts/Header";
+import DefaultLayout from "@/components/layouts/DefaultLayout";
 
-export default function Home(data: initData) {
+export default function Home(initTodos: Todo[]) {
   const router = useRouter();
   const query = router.query;
-  const [todos, setTodos] = useState<Todo[]>(data.todos);
+  const [todos, setTodos] = useState<Todo[]>(initTodos);
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [inputDeadline, setInputDeadline] = useState<string>("");
   const [isAddDeadline, setIsAddDeadline] = useState<boolean>(false);
@@ -29,8 +31,8 @@ export default function Home(data: initData) {
     query.searchValue?.toString() ? query.searchValue.toString() : ""
   );
 
-  const [page, setPage] = useState<number>(data.pageInfor.page);
-  const perPage = data.pageInfor.perPage;
+  const [page, setPage] = useState<number>(Number(query.page)? Number(query.page): 1);
+  const perPage = 2
 
   const onPageChange = (page: number) => {
     setPage(page);
@@ -44,30 +46,27 @@ export default function Home(data: initData) {
   };
 
   const getTodos = async () => {
-    const newData = await fetchTodos({
+    const newTodos = await fetchTodos({
       page,
       perPage,
       status: filterStatus,
       searchValue: searchName,
       level: filterLevel,
     });
-    setTodos(newData.todos);
-    if (!newData.todos.length && page !== 1) {
+    setTodos(newTodos);
+    if (!newTodos.length && page !== 1) {
       setPage(page - 1);
     }
-    const allData = await fetchTodos({
-      page: 1,
-      perPage: data.pageInfor.totalItems,
+    const allNewTodos = await fetchTodos({
       status: filterStatus,
       searchValue: searchName,
       level: filterLevel,
     });
-    setAllTodos(allData.todos);
+    setAllTodos(allNewTodos);
   };
 
   useEffect(() => {
     getTodos();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, todos.length, filterStatus, searchName, filterLevel]);
 
@@ -135,110 +134,109 @@ export default function Home(data: initData) {
   // }, [filterStatus, searchName, todos]);
 
   return (
-    <div className="container mx-auto py-6 flex flex-col">
-      <h1 className="text-2xl font-bold mb-4 text-center">TodoList !!!</h1>
+    <DefaultLayout>
+      <div className="container mx-auto py-6 flex flex-col">
+        <h1 className="text-4xl mt-4 font-bold mb-4 text-center">TODO</h1>
 
-      <TodoForm reloadData={getTodos} />
+        <TodoForm reloadData={getTodos} />
 
-      <div className="mt-6 w-full flex justify-end relative">
-        <select
-          name="level"
-          className="block w-1/8 mr-2 rounded-md bg-blue-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
-          value={filterLevel}
-          onChange={(e) => {
-            onFilterLevel(e.target.value);
-          }}
-        >
-          <option value="ALL">ALL</option>
-          <option value={Level.EASY}>EASY</option>
-          <option value={Level.MEDIUM}>MEDIUM</option>
-          <option value={Level.HARD}>HARD</option>
-        </select>
+        <div className="mt-6 w-full flex justify-end relative">
+          <select
+            name="level"
+            className="block w-1/8 mr-2 rounded-md bg-blue-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
+            value={filterLevel}
+            onChange={(e) => {
+              onFilterLevel(e.target.value);
+            }}
+          >
+            <option value="ALL">ALL</option>
+            <option value={Level.EASY}>EASY</option>
+            <option value={Level.MEDIUM}>MEDIUM</option>
+            <option value={Level.HARD}>HARD</option>
+          </select>
 
-        <select
-          name="status"
-          className="block w-1/8 mr-2 rounded-md bg-green-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
-          value={filterStatus}
-          onChange={(e) => {
-            onFilterStatus(e.target.value);
-          }}
-        >
-          <option value="ALL">ALL</option>
-          <option value={CompletionStatus.TODO}>TODO</option>
-          <option value={CompletionStatus.PROCESS}>PROCESS</option>
-          <option value={CompletionStatus.DONE}>DONE</option>
-        </select>
+          <select
+            name="status"
+            className="block w-1/8 mr-2 rounded-md bg-green-600 text-white font-bold shadow-sm border-gray-600 focus:border-indigo-600 px-4 py-2"
+            value={filterStatus}
+            onChange={(e) => {
+              onFilterStatus(e.target.value);
+            }}
+          >
+            <option value="ALL">ALL</option>
+            <option value={CompletionStatus.TODO}>TODO</option>
+            <option value={CompletionStatus.PROCESS}>PROCESS</option>
+            <option value={CompletionStatus.DONE}>DONE</option>
+          </select>
 
-        <input
-          type="text"
-          className="w-1/6 border border-gray-400 rounded px-2 py-2"
-          placeholder="Search"
-          value={searchName}
-          onChange={(e) => {
-            setSearchName(e.target.value)
-            router.push({
-              pathname: "",
-              query: {
-                ...query,
-                searchValue: e.target.value,
-              },
-            });
-          }}
-        />
-        {searchName && (
-          <GrClose
-            className="absolute top-3 right-3"
-            onClick={() => {
-              setSearchName("")
+          <input
+            type="text"
+            className="w-1/6 border border-gray-400 rounded px-2 py-2"
+            placeholder="Search"
+            value={searchName}
+            onChange={(e) => {
+              setSearchName(e.target.value);
               router.push({
                 pathname: "",
                 query: {
                   ...query,
-                  searchValue: "",
+                  searchValue: e.target.value,
                 },
               });
             }}
           />
+          {searchName && (
+            <GrClose
+              className="absolute top-3 right-3"
+              onClick={() => {
+                setSearchName("");
+                router.push({
+                  pathname: "",
+                  query: {
+                    ...query,
+                    searchValue: "",
+                  },
+                });
+              }}
+            />
+          )}
+        </div>
+
+        <TodoList
+          todos={todos}
+          onAdddeadline={onAddDeadline}
+          reloadData={getTodos}
+        />
+
+        {isAddDeadline && (
+          <>
+            <DeadlineModal
+              inputDeadline={inputDeadline}
+              onChangeInputDeadline={onChangeInputDeadline}
+              onSaveDeadline={onSaveDeadline}
+              onCancelDeadline={onCancelDeadline}
+            />
+            <div className="overlay"></div>
+          </>
         )}
+
+        <Pagination
+          quantity={allTodos.length}
+          perPage={perPage}
+          currentPage={page}
+          onPageChange={onPageChange}
+        />
       </div>
-
-      <TodoList
-        todos={todos}
-        onAdddeadline={onAddDeadline}
-        reloadData={getTodos}
-      />
-
-      {isAddDeadline && (
-        <>
-          <DeadlineModal
-            inputDeadline={inputDeadline}
-            onChangeInputDeadline={onChangeInputDeadline}
-            onSaveDeadline={onSaveDeadline}
-            onCancelDeadline={onCancelDeadline}
-          />
-          <div className="overlay"></div>
-        </>
-      )}
-
-      <Pagination
-        quantity={allTodos.length}
-        perPage={perPage}
-        currentPage={page}
-        onPageChange={onPageChange}
-      />
-    </div>
+    </DefaultLayout>
   );
 }
-
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const query = context.query;
   // Fetch data from the API endpoint
-  const data = await fetchTodos(query);
-  console.log(data);
+  const initTodos = await fetchTodos(query);
   return {
     props: {
-      todos: data.todos || [],
-      pageInfor: data.pageInfor,
+      initTodos,
     },
   };
 }
