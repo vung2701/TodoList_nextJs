@@ -234,9 +234,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const query = context.query;
   // Fetch data from the API endpoint
   const initTodos = await fetchTodos(query);
+  const serializedTodos = initTodos ? JSON.parse(JSON.stringify(initTodos)) : [];
   return {
     props: {
-      initTodos,
+      initTodos: serializedTodos,
     },
   };
 }
